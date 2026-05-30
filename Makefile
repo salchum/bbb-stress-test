@@ -8,7 +8,9 @@ DOCKER_USER          = $(DOCKER_UID):$(DOCKER_GID)
 
 COMPOSE              = DOCKER_USER=$(DOCKER_USER) docker compose
 COMPOSE_RUN          = $(COMPOSE) run --rm
+COMPOSE_RUN_BUILD    = $(COMPOSE) run --rm --build
 COMPOSE_RUN_APP      = $(COMPOSE_RUN) app
+COMPOSE_RUN_BUILD_APP = $(COMPOSE_RUN_BUILD) app
 COMPOSE_RUN_NODE     = $(COMPOSE_RUN) -e HOME="/tmp" app
 
 YARN                 = $(COMPOSE_RUN_NODE) yarn
@@ -26,11 +28,11 @@ default: help
 # -- Test suite
 
 stress: ## Run stress test
-	@$(COMPOSE_RUN_APP) ./cli.js stress $(ARGS)
+	@$(COMPOSE_RUN_BUILD_APP) ./cli.js stress $(ARGS)
 .PHONY: stress
 
 list-meetings: ## List meetings running on the BBB server
-	@$(COMPOSE_RUN_APP) ./cli.js list-meetings $(ARGS)
+	@$(COMPOSE_RUN_BUILD_APP) ./cli.js list-meetings $(ARGS)
 .PHONY: list-meetings
 
 

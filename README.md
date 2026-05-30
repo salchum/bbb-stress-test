@@ -29,6 +29,7 @@ fresh one-off container command.
    BBB_BOT_AUDIO_FILE=/app/audio.wav
    BBB_BOT_VIDEO_FILE=/app/webcam.y4m
    BBB_BOT_DEBUG_DIR=/app/screenshots
+   BBB_BOT_REPORT_DIR=/app/reports
    ```
 
 3. Put the runtime media files on the host:
@@ -53,7 +54,25 @@ fresh one-off container command.
    docker compose run --rm app ./cli.js stress test-1234 -w 3 -m 2 -l 4 -d 30 -v
    ```
 
-Screenshots are written to `./screenshots` on the host.
+   Rebuild after code changes:
+
+   ```bash
+   docker compose build app
+   ```
+
+Screenshots are written to `./screenshots` on the host. Structured JSONL report
+logs are written to `./reports`.
+
+Each stress test creates a report file named like:
+
+```text
+stress-report-YYYYMMDD-HHMMSSZ.jsonl
+```
+
+The file contains one JSON object per important event, including `run_started`,
+`client_started`, `client_joined`, `audio_connected`, `webcam_started`,
+`chat_sent`, `client_ready`, `client_failed`, `run_clients_processed`, and
+`run_finished`.
 
 ## Make Commands
 
@@ -66,8 +85,17 @@ make stress
 make stress ARGS="test-1234 -w 3 -m 2 -l 4 -d 30 -v"
 ```
 
+`make stress` and `make list-meetings` pass `--build` to Docker Compose so the
+container includes the latest local code.
+
 Values in `.env` are defaults. CLI arguments passed through `ARGS` override
 those defaults for a single run.
+
+To force a specific report filename for one run, set:
+
+```env
+BBB_BOT_REPORT_FILE=my-test-report.jsonl
+```
 
 See [CAPACITY_TEST_PLAN.md](./CAPACITY_TEST_PLAN.md) for the scalable BBB
 capacity test plan.

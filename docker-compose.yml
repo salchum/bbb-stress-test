@@ -22,6 +22,7 @@ services:
       - ./audio.wav:/app/audio.wav:ro
       - ./webcam.y4m:/app/webcam.y4m:ro
       - ./screenshots:/app/screenshots
+      - ./reports:/app/reports
 
     stdin_open: true
     tty: true

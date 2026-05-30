@@ -11,6 +11,8 @@ app/audio.wav
 app/webcam.y4m
 screenshots
 screenshots/**
+reports
+reports/**
 debug
 debug/**
 lib/*.js-bak*
