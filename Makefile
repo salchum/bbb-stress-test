@@ -32,6 +32,8 @@ stress: \
 .PHONY: stress
 
 list-meetings: ## List meetings running on the BBB server
+list-meetings: \
+	prepare-artifacts
 	@$(COMPOSE_RUN_APP) ./cli.js list-meetings $(ARGS)
 .PHONY: list-meetings
 
@@ -65,6 +67,8 @@ docker-build: ## Build the deployable Docker image
 .PHONY: docker-build
 
 install: ## Install dependencies in a temporary container
+install: \
+	prepare-artifacts
 	@$(YARN) install
 .PHONY: install
 
@@ -80,6 +84,8 @@ lint-prettier: ## Run prettier over js/jsx/json/ts/tsx files -- beware! overwrit
 .PHONY: lint-prettier
 
 node-console: # Run a terminal inside the node docker image
+node-console: \
+	prepare-artifacts
 	$(COMPOSE_RUN_APP) bash
 .PHONY: node-console
 
