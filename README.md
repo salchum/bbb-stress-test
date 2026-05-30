@@ -63,6 +63,9 @@ those defaults for a single run.
 `make stress` and `make list-meetings` do not rebuild the Docker image. Run
 `make docker-build` after code changes.
 
+`make stress` also prepares `./reports` and `./screenshots` and runs the
+container with your current host UID/GID so report files can be written.
+
 ## Docker Deployment
 
 4. Build the deployable image:
