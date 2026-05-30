@@ -11,6 +11,13 @@ services:
     env_file:
       - .env
 
+    environment:
+      HOME: /tmp
+      BBB_BOT_AUDIO_FILE: /app/audio.wav
+      BBB_BOT_VIDEO_FILE: /app/webcam.y4m
+      BBB_BOT_DEBUG_DIR: /app/screenshots
+      BBB_BOT_REPORT_DIR: /app/reports
+
     user: "${DOCKER_USER:-1000}"
 
     shm_size: "2gb"

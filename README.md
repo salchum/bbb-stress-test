@@ -8,7 +8,7 @@ It simulates client activity in a BBB conference with [Puppeteer](https://pptr.d
 The Docker setup is intended for a single server where each test is run as a
 fresh one-off container command.
 
-## Docker Deployment
+## Configuration
 
 1. Prepare the environment file:
 
@@ -26,10 +26,10 @@ fresh one-off container command.
    BBB_CLIENTS_MIC=0
    BBB_CLIENTS_LISTEN_ONLY=0
    BBB_TEST_DURATION=60
-   BBB_BOT_AUDIO_FILE=/app/audio.wav
-   BBB_BOT_VIDEO_FILE=/app/webcam.y4m
-   BBB_BOT_DEBUG_DIR=/app/screenshots
-   BBB_BOT_REPORT_DIR=/app/reports
+   BBB_BOT_AUDIO_FILE=./audio.wav
+   BBB_BOT_VIDEO_FILE=./webcam.y4m
+   BBB_BOT_DEBUG_DIR=./screenshots
+   BBB_BOT_REPORT_DIR=./reports
    ```
 
 3. Put the runtime media files on the host:
@@ -40,6 +40,30 @@ fresh one-off container command.
    ```
 
    These files are mounted into the container and are not baked into the image.
+
+Screenshots are written to `./screenshots` on the host. Structured JSONL report
+logs are written to `./reports`.
+
+## Make Commands
+
+Make commands use Docker Compose, so Node does not need to be installed on the
+host:
+
+```bash
+make docker-build
+make install
+make list-meetings
+make stress
+make stress ARGS="test-1234 -w 3 -m 2 -l 4 -d 30 -v"
+```
+
+Values in `.env` are defaults. CLI arguments passed through `ARGS` override
+those defaults for a single run.
+
+`make stress` and `make list-meetings` do not rebuild the Docker image. Run
+`make docker-build` after code changes.
+
+## Docker Deployment
 
 4. Build the deployable image:
 
@@ -54,14 +78,21 @@ fresh one-off container command.
    docker compose run --rm app ./cli.js stress test-1234 -w 3 -m 2 -l 4 -d 30 -v
    ```
 
-   Rebuild after code changes:
+   Docker Compose overrides media, screenshot, and report paths to `/app/...`
+   inside the container.
+
+   Rebuild explicitly after code changes:
 
    ```bash
-   docker compose build app
+   make docker-build
    ```
 
-Screenshots are written to `./screenshots` on the host. Structured JSONL report
-logs are written to `./reports`.
+If Docker cannot write reports or screenshots, fix host directory permissions:
+
+```bash
+mkdir -p reports screenshots
+chmod 777 reports screenshots
+```
 
 Each stress test creates a report file named like:
 
@@ -73,23 +104,6 @@ The file contains one JSON object per important event, including `run_started`,
 `client_started`, `client_joined`, `audio_connected`, `webcam_started`,
 `chat_sent`, `client_ready`, `client_failed`, `run_clients_processed`, and
 `run_finished`.
-
-## Make Commands
-
-The Makefile wraps the same one-off Docker commands:
-
-```bash
-make docker-build
-make list-meetings
-make stress
-make stress ARGS="test-1234 -w 3 -m 2 -l 4 -d 30 -v"
-```
-
-`make stress` and `make list-meetings` pass `--build` to Docker Compose so the
-container includes the latest local code.
-
-Values in `.env` are defaults. CLI arguments passed through `ARGS` override
-those defaults for a single run.
 
 To force a specific report filename for one run, set:
 
