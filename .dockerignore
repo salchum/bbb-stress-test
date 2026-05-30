@@ -1,7 +1,19 @@
 # JS
-*.md
 *.log
 **/node_modules
+
+# Runtime files mounted by docker-compose
+.env
+.env.*
+audio.wav
+webcam.y4m
+app/audio.wav
+app/webcam.y4m
+screenshots
+screenshots/**
+debug
+debug/**
+lib/*.js-bak*
 
 # System-specific files
 .DS_Store
@@ -10,7 +22,6 @@
 # Docker
 docker-compose.*
 env.d
-.env*
 
 # Docs
 docs
@@ -24,4 +35,3 @@ docs
 .vscode
 .idea
 .mypy_cache
-

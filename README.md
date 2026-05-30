@@ -4,43 +4,84 @@
 
 This is a stress testing tool for [BigBlueButton](https://bigbluebutton.org/).
 
-It simulates client activity in a BBB conference thanks to [Puppeteer](https://pptr.dev/).
+It simulates client activity in a BBB conference with [Puppeteer](https://pptr.dev/).
+The Docker setup is intended for a single server where each test is run as a
+fresh one-off container command.
 
-## Getting Started
+## Docker Deployment
 
-### Preparation
+1. Prepare the environment file:
 
-1) Clone this repository
+   ```bash
+   cp .env.default .env
+   ```
 
-2) Run `make bootstrap`
+2. Edit `.env` and set at least:
 
-3) Update the generated `.env` file to specify `BBB_URL` and `BBB_SECRET`. \
-You can get these values by running `bbb-conf --secret` on your BBB server.
+   ```env
+   BBB_URL=
+   BBB_SECRET=
+   BBB_MEETING_ID=
+   BBB_CLIENTS_WEBCAM=1
+   BBB_CLIENTS_MIC=0
+   BBB_CLIENTS_LISTEN_ONLY=0
+   BBB_TEST_DURATION=60
+   BBB_BOT_AUDIO_FILE=/app/audio.wav
+   BBB_BOT_VIDEO_FILE=/app/webcam.y4m
+   BBB_BOT_DEBUG_DIR=/app/screenshots
+   ```
 
-### Ready to launch your test?
+3. Put the runtime media files on the host:
 
-1) Manually start a meeting on your BBB server.
+   ```text
+   ./audio.wav
+   ./webcam.y4m
+   ```
 
-2) Get the meeting ID by running `make list-meetings`
+   These files are mounted into the container and are not baked into the image.
 
-3) Update your `.env` file to set the following variables :
-   - `BBB_MEETING_ID` : the meeting ID
-   - `BBB_CLIENTS_LISTEN_ONLY`: the number of simultaneous clients to connect in "Listen only" mode
-   - `BBB_CLIENTS_MIC` : the number of simultaneous clients to connect with an active microphone
-   - `BBB_CLIENTS_WEBCAM` : the number of simultaneous clients to connect with an active webcam and microphone
-   - `BBB_TEST_DURATION` : the duration of the test in seconds
+4. Build the deployable image:
 
-4) Run `make stress` to launch the test suite
+   ```bash
+   docker compose build app
+   ```
 
-## Contributing
+5. Run commands whenever needed:
 
-This project is intended to be community-driven, so please, do not hesitate to
-get in touch if you have any question related to our implementation or design
-decisions.
+   ```bash
+   docker compose run --rm app ./cli.js list-meetings
+   docker compose run --rm app ./cli.js stress test-1234 -w 3 -m 2 -l 4 -d 30 -v
+   ```
 
-We try to raise our code quality standards and expect contributors to follow
-the recommandations from our
-[handbook](https://openfun.gitbooks.io/handbook/content).
+Screenshots are written to `./screenshots` on the host.
+
+## Make Commands
+
+The Makefile wraps the same one-off Docker commands:
+
+```bash
+make docker-build
+make list-meetings
+make stress
+make stress ARGS="test-1234 -w 3 -m 2 -l 4 -d 30 -v"
+```
+
+Values in `.env` are defaults. CLI arguments passed through `ARGS` override
+those defaults for a single run.
+
+See [CAPACITY_TEST_PLAN.md](./CAPACITY_TEST_PLAN.md) for the scalable BBB
+capacity test plan.
+
+## Common Stress Options
+
+```text
+meeting              Meeting ID. Defaults to BBB_MEETING_ID.
+-w, --webcams        Number of clients with webcam and microphone.
+-m, --microphones    Number of clients with microphone only.
+-l, --listening      Number of clients in listen-only mode.
+-d, --duration       Test duration in seconds after clients are connected.
+-v, --verbose        Enable verbose logs.
+```
 
 ## License
 

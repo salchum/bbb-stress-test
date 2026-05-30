@@ -1,16 +1,27 @@
-version: '3.4'
-
 services:
   app:
     build:
       context: .
-      target: development
-    image: bbb-stress-test:development
-    working_dir: /app/
-    user: ${DOCKER_USER:-1000}
-    cap_add:
-      - SYS_ADMIN
+      target: dist
+
+    image: bbb-stress-test:latest
+
+    working_dir: /app
+
     env_file:
       - .env
+
+    user: "${DOCKER_USER:-1000}"
+
+    shm_size: "2gb"
+
+    cap_add:
+      - SYS_ADMIN
+
     volumes:
-      - .:/app
+      - ./audio.wav:/app/audio.wav:ro
+      - ./webcam.y4m:/app/webcam.y4m:ro
+      - ./screenshots:/app/screenshots
+
+    stdin_open: true
+    tty: true
